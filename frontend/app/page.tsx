@@ -18,7 +18,7 @@ export default function Home() {
     if (!query.trim()) return
     setLoading(true)
     try {
-      const res  = await fetch(`http://localhost:8000/api/v1/search?q=${encodeURIComponent(query)}`)
+      const res = await fetch(`http://127.0.0.1:8000/api/v1/search?q=${encodeURIComponent(query)}&limit=60`)
       const data = await res.json()
       setResults(data.results)
     } catch (e) {
