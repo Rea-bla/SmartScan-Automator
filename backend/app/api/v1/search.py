@@ -6,18 +6,35 @@ from app.models.product import Product
 from app.models.price import Price
 from app.scrapers import ALL_SCRAPERS
 import asyncio
-import re  # BİZİM YENİ SÜPER SİLAHIMIZ (REGEX)
+import re
+from typing import Optional # BUNU EKLEDİK
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
 
 @router.get("/search")
 async def search_products(
     q: str = "",
-    limit: int = 60,
+    limit: Optional[str] = "500",
     db: AsyncSession = Depends(get_db)
 ):
+    try:
+        limit_int = int(limit) if limit and limit.strip() else 500
+    except ValueError:
+        limit_int = 500
+
+    # --- SORGUMUZU AKILLICA TEMİZLİYORUZ ---
+    # 1. Harf ile rakam arasına boşluk koyar (örn: "rtx4060" -> "rtx 4060", "iphone15" -> "iphone 15")
+    q = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', q)
+    # 2. Rakam ile harf arasına boşluk koyar (örn: "4060ti" -> "4060 ti", "16gb" -> "16 gb")
+    q = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', q)
+    # Boşlukları temizle
+    q = q.strip()
+    # ---------------------------------------
+
     if not q.strip():
         return {"query": q, "results": [], "count": 0}
+
+    # tasks = ...
 
     tasks = [scraper.search(q) for scraper in ALL_SCRAPERS]
     all_results = await asyncio.gather(*tasks, return_exceptions=False)
@@ -33,8 +50,8 @@ async def search_products(
     
     for r in results:
         name_lower = r.name.lower()
-        # Kelimenin önüne ve arkasına \b (kelime sınırı) koyarak "tam eşleşme" arıyoruz
-        if all(re.search(rf"\b{re.escape(term)}\b", name_lower) for term in search_terms):
+       # \b sınırlarını kaldırdık. Kelimenin içinde bitişik geçse bile (örn: rtx4060) yakalayacak.
+        if all(term in name_lower for term in search_terms):
             filtered_results.append(r)
             
     results = filtered_results
@@ -81,6 +98,6 @@ async def search_products(
                 "image_url": r.image_url,
                 "in_stock": r.in_stock,
             }
-            for r in results[:limit]
+            for r in results[:limit_int] # DİKKAT: En altta 'limit' yerine 'limit_int' kullanıyoruz
         ]
     }
