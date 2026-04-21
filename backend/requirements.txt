@@ -16,6 +16,7 @@ httpx==0.26.0
 beautifulsoup4==4.12.3
 playwright==1.42.0
 lxml==5.1.0
+curl_cffi==0.7.4
 
 # Asenkron görev kuyruğu
 celery[redis]==5.3.6
