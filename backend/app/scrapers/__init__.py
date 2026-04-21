@@ -12,7 +12,7 @@ ALL_SCRAPERS = [
     TrendyolScraper(),
     HepsiburadaScraper(),
     AmazonTRScraper(),
-   # N11Scraper(),
+    N11Scraper(),
     VatanBilgisayarScraper(),
     MediaMarktScraper(),
     TeknosaScraper(),

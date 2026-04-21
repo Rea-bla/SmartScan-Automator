@@ -3,16 +3,16 @@ from app.scrapers.n11 import N11Scraper
 
 async def main():
     scraper = N11Scraper()
-    # iPhone yerine Asus aratarak n11'in standart grid yapısını test ediyoruz
-    query = "iphone 15" 
-    print(f"n11 Testi Başlıyor: {query}\n")
+    query = "iphone 15"
+    print(f"Aranıyor: {query}\n")
     results = await scraper.search(query)
 
-    print(f"\nBulunan toplam ürün: {len(results)}")
-    for r in results[:10]: # İlk 10 tanesini göster
-        print(f"AD    : {r.name}")
-        print(f"FİYAT : {r.price} TL")
-        print("-" * 30)
+    print(f"\nBulunan ürün sayısı: {len(results)}")
+    for r in results[:5]:
+        print(f"  AD    : {r.name[:70]}")
+        print(f"  FİYAT : {r.price} TL")
+        print(f"  URL   : {r.url[:70]}")
+        print(f"  IMG   : {r.image_url[:70] if r.image_url else '❌ FOTO YOK'}")
+        print()
 
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(main())
