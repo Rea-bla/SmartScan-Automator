@@ -37,7 +37,7 @@ class MediaMarktScraper(AbstractScraper):
             cards = soup.select("article[data-test='mms-product-card']")
             print(f"[MediaMarkt] {len(cards)} kart bulundu.")
 
-            for card in cards[:20]:
+            for card in cards[:50]:
                 try:
                     # Sponsorlu/marketplace ürünleri atla
                     if card.select_one("a[data-test='mms-third-party-provider-link']"):

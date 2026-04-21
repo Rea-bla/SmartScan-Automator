@@ -7,9 +7,20 @@ from app.models.price import Price
 from app.scrapers import ALL_SCRAPERS
 import asyncio
 import re
-from typing import Optional # BUNU EKLEDİK
+from typing import Optional
 
 router = APIRouter(prefix="/api/v1", tags=["search"])
+
+# --- YENİ SÜPER SİLAHIMIZ: KELİME ATOMİZERİ (TOKENIZER) ---
+def tokenize_text(text: str) -> set:
+    # 1. Noktalama işaretlerini (", ', -, vs.) boşluğa çevir
+    t = re.sub(r'[^\w\s]', ' ', text)
+    # 2. Harf ve rakam arasına kılıç gibi gir (Örn: A11 -> A 11, RTX4060 -> RTX 4060)
+    t = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', t)
+    t = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', t)
+    # 3. Kelimeleri tek tek koparıp bir kümeye (set) at
+    return set(t.lower().split())
+# -----------------------------------------------------------
 
 @router.get("/search")
 async def search_products(
@@ -22,19 +33,9 @@ async def search_products(
     except ValueError:
         limit_int = 500
 
-    # --- SORGUMUZU AKILLICA TEMİZLİYORUZ ---
-    # 1. Harf ile rakam arasına boşluk koyar (örn: "rtx4060" -> "rtx 4060", "iphone15" -> "iphone 15")
-    q = re.sub(r'([a-zA-Z])(\d)', r'\1 \2', q)
-    # 2. Rakam ile harf arasına boşluk koyar (örn: "4060ti" -> "4060 ti", "16gb" -> "16 gb")
-    q = re.sub(r'(\d)([a-zA-Z])', r'\1 \2', q)
-    # Boşlukları temizle
     q = q.strip()
-    # ---------------------------------------
-
-    if not q.strip():
+    if not q:
         return {"query": q, "results": [], "count": 0}
-
-    # tasks = ...
 
     tasks = [scraper.search(q) for scraper in ALL_SCRAPERS]
     all_results = await asyncio.gather(*tasks, return_exceptions=False)
@@ -44,14 +45,17 @@ async def search_products(
         if isinstance(site_results, list):
             results.extend(site_results)
 
-    # --- SÜPER AKILLI FİLTRE BAŞLIYOR ---
-    search_terms = q.lower().split() 
+    # --- SÜPER KUSURSUZ FİLTRE BAŞLIYOR ---
+    # Aranan kelimeleri atomlarına ayır (Örn "s11 tablet" -> {'s', '11', 'tablet'})
+    search_tokens = tokenize_text(q)
     filtered_results = []
     
     for r in results:
-        name_lower = r.name.lower()
-       # \b sınırlarını kaldırdık. Kelimenin içinde bitişik geçse bile (örn: rtx4060) yakalayacak.
-        if all(term in name_lower for term in search_terms):
+        # Ürün adını atomlarına ayır
+        product_tokens = tokenize_text(r.name)
+        
+        # Eğer aradığımız tüm atomlar (s, 11, tablet), ürünün atomları içinde bağımsız olarak varsa:
+        if search_tokens.issubset(product_tokens):
             filtered_results.append(r)
             
     results = filtered_results
@@ -98,6 +102,6 @@ async def search_products(
                 "image_url": r.image_url,
                 "in_stock": r.in_stock,
             }
-            for r in results[:limit_int] # DİKKAT: En altta 'limit' yerine 'limit_int' kullanıyoruz
+            for r in results[:limit_int]
         ]
     }

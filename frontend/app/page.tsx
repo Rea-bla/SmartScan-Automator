@@ -10,9 +10,12 @@ interface Result {
 }
 
 const SITE_COLORS: Record<string, string> = {
-  'Trendyol':    'bg-orange-100 text-orange-700',
-  'Hepsiburada': 'bg-blue-100 text-blue-700',
-  'Amazon TR':   'bg-yellow-100 text-yellow-700',
+  'Trendyol':         'bg-orange-100 text-orange-700',
+  'Hepsiburada':      'bg-blue-100 text-blue-700',
+  'Amazon TR':        'bg-yellow-100 text-yellow-700',
+  'MediaMarkt':       'bg-red-100 text-red-700',
+  'Vatan Bilgisayar': 'bg-indigo-100 text-indigo-700',
+  'Teknosa':          'bg-amber-100 text-amber-700',
 }
 
 export default function Home() {
@@ -57,7 +60,7 @@ export default function Home() {
     <main className="max-w-3xl mx-auto px-4 py-10">
       <h1 className="text-3xl font-bold mb-1">SmartScan Automator</h1>
       <p className="text-gray-500 mb-8 text-sm">
-        Trendyol, Hepsiburada ve Amazon'dan anlik fiyat karsilastirmasi
+        6 Farklı siteden aynı anda fiyat karşılaştırması yapın. Aradığınız ürünün adını yazın, gerisini bize bırakın! En uygun fiyatı ve satıcıyı saniyeler içinde bulun.
       </p>
 
       <div className="flex gap-2 mb-8">

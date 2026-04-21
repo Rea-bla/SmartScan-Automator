@@ -28,9 +28,9 @@ class TrendyolScraper(AbstractScraper):
 
             try:
                 # networkidle kaldırıldı (hız için)
-                await page.goto(url, timeout=20000)
+                await page.goto(url, timeout=40000)
 
-                await page.wait_for_timeout(1500)
+                await page.wait_for_timeout(5500)
 
                 print(f"[Trendyol] Çok daha fazla ürün için sayfanın derinlerine iniliyor...")
                 # Asansörle değil, merdivenle iniyoruz ki tüm ürünler yüklensin

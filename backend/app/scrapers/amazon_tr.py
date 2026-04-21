@@ -30,7 +30,7 @@ class AmazonTRScraper(AbstractScraper):
                 items = soup.select("[data-component-type='s-search-result']")
                 print(f"[Amazon TR] {len(items)} urun bulundu")
 
-                for item in items[:60]:
+                for item in items[:40]:
                     try:
                         name_el  = item.select_one("h2 span")
                         price_el = item.select_one(".a-price .a-offscreen")

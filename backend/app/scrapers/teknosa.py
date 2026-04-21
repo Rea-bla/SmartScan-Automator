@@ -44,7 +44,7 @@ class TeknosaScraper(AbstractScraper):
 
             print(f"[Teknosa] {len(cards)} kart bulundu.")
 
-            for card in cards[:20]:
+            for card in cards[:50]:
                 try:
                     name_el  = card.select_one("h3.prd-title")
                     price_el = card.select_one(".prd-prc2") or card.select_one(".prd-prc1") or card.select_one(".prd-prices")

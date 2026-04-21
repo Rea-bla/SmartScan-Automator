@@ -13,9 +13,9 @@ ALL_SCRAPERS = [
     HepsiburadaScraper(),
     AmazonTRScraper(),
    # N11Scraper(),
-   # VatanBilgisayarScraper(),
-   # MediaMarktScraper(),
-   # TeknosaScraper(),
+    VatanBilgisayarScraper(),
+    MediaMarktScraper(),
+    TeknosaScraper(),
    # CicekSepetiScraper(),
     # Yeni scraper ekledikçe buraya ekle
 ]
