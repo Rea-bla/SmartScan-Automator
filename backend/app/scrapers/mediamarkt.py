@@ -84,24 +84,20 @@ class MediaMarktScraper(AbstractScraper):
         return None
 
     def _parse_price(self, text: str) -> float:
-        # "₺23.899,–₺23899,00KDV dahil..." → ilk sayıyı al
-        # Türk formatı: 23.899 → nokta binlik ayraç, virgül ondalık
-        match = re.search(r"[\d\.]+,[\d–-]+", text)
+        # "₺23.899,–" , "₺23.899,00" formatlarını işle
+        text = text.replace("₺", "").replace("\xa0", "").strip()
+
+        # Noktalı binlik ayraçlı Türk formatı: X.XXX,XX veya XX.XXX,–
+        match = re.search(r"\d{1,3}(?:\.\d{3})+(?:,[\d–-]+)?|\d+(?:,[\d–-]+)?", text)
         if match:
             raw = match.group(0)
-            # "23.899,–" veya "23.899,00" → noktaları kaldır, virgülden sonrasını at
-            raw = raw.replace(".", "")   # binlik ayraç
-            raw = re.sub(r",.*", "", raw)  # virgülden sonrasını sil
+            raw = raw.replace(".", "")       # binlik ayracı kaldır
+            raw = re.sub(r",.*", "", raw)    # virgülden sonrasını sil
             try:
-                return float(raw)
+                val = float(raw)
+                if val > 100:
+                    return val
             except ValueError:
                 pass
-
-        # Fallback: sadece rakamları al, ilk anlamlı sayı
-        numbers = re.findall(r"\d+", text.replace(".", ""))
-        for n in numbers:
-            val = float(n)
-            if val > 100:  # fiyat 100 TL'den büyük olmalı
-                return val
 
         return 0.0
